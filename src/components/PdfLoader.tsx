@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+//import LCC from "lightning-container";
 
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
 import type { PDFDocumentProxy } from "pdfjs-dist";
@@ -6,7 +7,6 @@ import type { PDFDocumentProxy } from "pdfjs-dist";
 interface Props {
   /** See `GlobalWorkerOptionsType`. */
   workerSrc: string;
-
   url: string;
   beforeLoad: JSX.Element;
   errorMessage?: JSX.Element;
@@ -27,15 +27,39 @@ export class PdfLoader extends Component<Props, State> {
     error: null,
   };
 
+  static URL: string;
   static defaultProps = {
-    workerSrc: "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js",
+    workerSrc: "./public/pdf.worker.min.js",
+    // workerSrc:
+    //   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js",
+    // workerSrc:
+    //   "https://techmeoutio2-dev-ed--c.develop.vf.force.com/resource/1689774613000/pdfWorker",
+    // workerSrc: "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js",
   };
 
   documentRef = React.createRef<HTMLElement>();
 
   componentDidMount() {
+    // LCC.addMessageHandler(this.onMessage);
+    // console.log("message handler has been set");
+    // const script = document.createElement("script");
+    // script.src =
+    //   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js";
+    // //script.async = true;
+    // document.body.appendChild(script);
     this.load();
   }
+
+  // onMessage(message: any) {
+  //   //console.log("about to destructure the message");
+  //   const name = message.name;
+  //   PdfLoader.URL = message.url;
+  //   console.log(
+  //     "the values of the strings from aura component is: ",
+  //     name,
+  //     PdfLoader.URL
+  //   );
+  // }
 
   componentWillUnmount() {
     const { pdfDocument: discardedDocument } = this.state;

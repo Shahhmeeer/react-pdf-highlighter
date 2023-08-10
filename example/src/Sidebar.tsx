@@ -9,6 +9,14 @@ interface Props {
 
 const updateHash = (highlight: IHighlight) => {
   document.location.hash = `highlight-${highlight.id}`;
+  console.log(
+    "document.location.hash from Sidebar Component:::: ",
+    document.location.hash
+  );
+  console.log(
+    "highlight.id from Sidebar Component:::: ",
+    `highlight-${highlight.id}`
+  );
 };
 
 export function Sidebar({
@@ -60,9 +68,9 @@ export function Sidebar({
           </li>
         ))}
       </ul>
-      <div style={{ padding: "1rem" }}>
-        {/* <button onClick={toggleDocument}>Toggle PDF document</button> */}
-      </div>
+      {/* <div style={{ padding: "1rem" }}>
+        <button onClick={toggleDocument}>Toggle PDF document</button>
+      </div> */}
       {highlights.length > 0 ? (
         <div style={{ padding: "1rem" }}>
           <button onClick={resetHighlights}>Reset highlights</button>
