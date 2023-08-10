@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import LCC from "lightning-container";
 
 import {
   PdfLoader,
@@ -44,12 +45,21 @@ const HighlightPopup = ({
     </div>
   ) : null;
 
-const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
-const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
+const queryParameters = new URLSearchParams(window.location.search);
+const documentId = queryParameters.get("documentId");
+console.log("The document id inside react is::: ", documentId);
 
-const searchParams = new URLSearchParams(document.location.search);
+const testing = window.location;
+console.log("The testing has the value::: ", testing);
 
-const initialUrl = searchParams.get("url") || PRIMARY_PDF_URL;
+// const PRIMARY_PDF_URL = `/sfsites/c/sfc/servlet.shepherd/document/download/${documentId}?operationContext=S1`;
+const PRIMARY_PDF_URL = `https://techmeoutio2-dev-ed.develop.my.site.com/RecruitersPortal/s/sfsites/c/sfc/servlet.shepherd/document/download/${documentId}`;
+// const PRIMARY_PDF_URL = `https://techmeoutio2-dev-ed.develop.my.salesforce.com/sfc/p/7R000004Ns3Y/a/7R000004ewqO/oYwXxK1jXkcC4kNPLR26brT.6xEyN81kb.pMcu29wT4`;
+console.log("The Pdf Link is::: ", PRIMARY_PDF_URL);
+
+// const searchParams = new URLSearchParams(document.location.search);
+// const initialUrl = searchParams.get("url") || PRIMARY_PDF_URL;
+const initialUrl = PRIMARY_PDF_URL;
 
 class App extends Component<{}, State> {
   state = {
@@ -60,20 +70,18 @@ class App extends Component<{}, State> {
   };
 
   resetHighlights = () => {
-    this.setState({
-      highlights: [],
-    });
+    this.setState({ highlights: [] });
   };
 
-  toggleDocument = () => {
-    const newUrl =
-      this.state.url === PRIMARY_PDF_URL ? SECONDARY_PDF_URL : PRIMARY_PDF_URL;
+  // toggleDocument = () => {
+  //   const newUrl =
+  //     this.state.url === PRIMARY_PDF_URL ? SECONDARY_PDF_URL : PRIMARY_PDF_URL;
 
-    this.setState({
-      url: newUrl,
-      highlights: testHighlights[newUrl] ? [...testHighlights[newUrl]] : [],
-    });
-  };
+  //   this.setState({
+  //     url: newUrl,
+  //     highlights: testHighlights[newUrl] ? [...testHighlights[newUrl]] : [],
+  //   });
+  // };
 
   scrollViewerTo = (highlight: any) => {};
 
@@ -86,6 +94,77 @@ class App extends Component<{}, State> {
   };
 
   componentDidMount() {
+    LCC.addMessageHandler((message: any) => {
+      const receivedHighlights = message.highlights;
+      const description = message.description;
+      console.log(
+        "Data received in React App. The object includes: ",
+        receivedHighlights,
+        description
+      );
+      let acceptedData: {
+        content: { text: any };
+        position: {
+          boundingRect: {
+            x1: any;
+            y1: any;
+            x2: any;
+            y2: any;
+            width: any;
+            height: any;
+          };
+          rects: {
+            x1: any;
+            y1: any;
+            x2: any;
+            y2: any;
+            width: any;
+            height: any;
+          }[];
+          pageNumber: any;
+        };
+        comment: { text: any };
+        id: any;
+      }[] = [];
+      receivedHighlights.map((receivedHighlight: any) => {
+        console.log("Each single highlight is::: ", receivedHighlight);
+        acceptedData.push({
+          content: {
+            text: receivedHighlight.Pdf_Content_Text__c,
+          },
+          position: {
+            boundingRect: {
+              x1: receivedHighlight.Pdf_Position_X1__c,
+              y1: receivedHighlight.Pdf_Position_Y1__c,
+              x2: receivedHighlight.Pdf_Position_X2__c,
+              y2: receivedHighlight.Pdf_Position_Y2__c,
+              width: receivedHighlight.Pdf_Position_Width__c,
+              height: receivedHighlight.Pdf_Position_Height__c,
+            },
+            rects: [
+              {
+                x1: receivedHighlight.Pdf_Position_X1__c,
+                y1: receivedHighlight.Pdf_Position_Y1__c,
+                x2: receivedHighlight.Pdf_Position_X2__c,
+                y2: receivedHighlight.Pdf_Position_Y2__c,
+                width: receivedHighlight.Pdf_Position_Width__c,
+                height: receivedHighlight.Pdf_Position_Height__c,
+              },
+            ],
+            pageNumber: receivedHighlight.Pdf_Comment_Page_Number__c,
+          },
+          comment: {
+            text: receivedHighlight.Pdf_Comment_Text__c,
+          },
+          id: receivedHighlight.Id,
+        });
+      });
+      console.log(
+        "Highlights that are about to be send to the Function is::: ",
+        acceptedData
+      );
+      this.renderAfterHighlightsAreReceived(acceptedData);
+    });
     window.addEventListener(
       "hashchange",
       this.scrollToHighlightFromHash,
@@ -93,16 +172,29 @@ class App extends Component<{}, State> {
     );
   }
 
+  renderAfterHighlightsAreReceived(pdfHighlights: any) {
+    console.log("Highlights received in the function is::: ", pdfHighlights);
+    this.setState({ highlights: pdfHighlights });
+  }
+
   getHighlightById(id: string) {
     const { highlights } = this.state;
-
     return highlights.find((highlight) => highlight.id === id);
+  }
+
+  sendMessageToSalesforce(highlight: any) {
+    LCC.sendMessage(highlight); // Sending the Data to Salesforce.
+    console.log(
+      "Data has been sent to salesforce for further useage",
+      highlight
+    );
   }
 
   addHighlight(highlight: NewHighlight) {
     const { highlights } = this.state;
 
-    console.log("Saving highlight", highlight);
+    // console.log("Saving highlight", highlight);
+    this.sendMessageToSalesforce(highlight);
 
     this.setState({
       highlights: [{ ...highlight, id: getNextId() }, ...highlights],
@@ -137,10 +229,14 @@ class App extends Component<{}, State> {
 
     return (
       <div className="App" style={{ display: "flex", height: "100vh" }}>
+        {console.log(
+          "The highlights that are sent to the Sidebar is::: ",
+          this.state.highlights
+        )}
         <Sidebar
           highlights={highlights}
           resetHighlights={this.resetHighlights}
-          toggleDocument={this.toggleDocument}
+          // toggleDocument={this.toggleDocument}
         />
         <div
           style={{

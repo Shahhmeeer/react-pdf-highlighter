@@ -3,5 +3,10 @@
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "editor.fontSize": 16,
+  "salesforcedx-vscode-core.detectConflictsAtSync": true,
+  "salesforcedx-vscode-core.push-or-deploy-on-save.enabled": true,
+  "salesforcedx-vscode-core.push-or-deploy-on-save.preferDeployOnSave": true,
+  "editor.tabSize": 2
 }

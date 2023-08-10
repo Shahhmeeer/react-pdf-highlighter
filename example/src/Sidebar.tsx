@@ -4,7 +4,7 @@ import type { IHighlight } from "./react-pdf-highlighter";
 interface Props {
   highlights: Array<IHighlight>;
   resetHighlights: () => void;
-  toggleDocument: () => void;
+  // toggleDocument: () => void;
 }
 
 const updateHash = (highlight: IHighlight) => {
@@ -13,19 +13,13 @@ const updateHash = (highlight: IHighlight) => {
 
 export function Sidebar({
   highlights,
-  toggleDocument,
+  // toggleDocument,
   resetHighlights,
 }: Props) {
   return (
     <div className="sidebar" style={{ width: "25vw" }}>
       <div className="description" style={{ padding: "1rem" }}>
-        <h2 style={{ marginBottom: "1rem" }}>react-pdf-highlighter</h2>
-
-        <p style={{ fontSize: "0.7rem" }}>
-          <a href="https://github.com/agentcooper/react-pdf-highlighter">
-            Open in GitHub
-          </a>
-        </p>
+        <h2 style={{ marginBottom: "1rem" }}>Pdf Highlighter</h2>
 
         <p>
           <small>
@@ -67,7 +61,7 @@ export function Sidebar({
         ))}
       </ul>
       <div style={{ padding: "1rem" }}>
-        <button onClick={toggleDocument}>Toggle PDF document</button>
+        {/* <button onClick={toggleDocument}>Toggle PDF document</button> */}
       </div>
       {highlights.length > 0 ? (
         <div style={{ padding: "1rem" }}>
